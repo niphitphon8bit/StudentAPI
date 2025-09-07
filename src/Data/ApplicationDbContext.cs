@@ -10,8 +10,8 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<Student> Students { get; set; } = null!;
-
+    public DbSet<Student> Students => Set<Student>();
+    public DbSet<Course>  Courses => Set<Course>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
