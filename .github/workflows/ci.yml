@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
   build-test:
@@ -39,6 +41,20 @@ jobs:
             --results-directory TestResults \
             --logger "trx;LogFileName=test_results.trx"
 
+      - name: Publish unit test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            **/TestResults/**/*.trx
+
+      - name: Generate coverage report (HTML)
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          reports: '**/TestResults/**/coverage.cobertura.xml'
+          targetdir: 'coverage-report'
+          reporttypes: 'HtmlInline_AzurePipelines;TextSummary'
+
       - name: Upload test results and coverage
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,4 +64,4 @@ jobs:
             **/TestResults/**/*.trx
             **/TestResults/**/*.xml
             **/TestResults/**/*.json
-
+            coverage-report/**
