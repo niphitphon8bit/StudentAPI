@@ -40,18 +40,18 @@ jobs:
       - name: Restore
         run: dotnet restore StudentAPI.sln
 
-      - name: Build (Release)
-        run: dotnet build StudentAPI.sln --no-restore -c Release
+      - name: Build (Debug)
+        run: dotnet build StudentAPI.sln --no-restore -c Debug
 
       # ✅ Runs tests, collects coverage, writes TRX
       # If coverlet.runsettings exists it will be used; otherwise we emit Cobertura via /p:
-      - name: Test with coverage
+      - name: Test with coverage (Debug)
         shell: bash
         run: |
           if [ -f "coverlet.runsettings" ]; then
             echo "Using coverlet.runsettings"
             dotnet test StudentAPI.sln \
-              --no-build -c Release \
+              --no-build -c Debug \
               --collect:"XPlat Code Coverage" \
               --settings coverlet.runsettings \
               --results-directory TestResults \
@@ -59,7 +59,7 @@ jobs:
           else
             echo "coverlet.runsettings not found; using Cobertura output via properties"
             dotnet test StudentAPI.sln \
-              --no-build -c Release \
+              --no-build -c Debug \
               /p:CollectCoverage=true \
               /p:CoverletOutputFormat=cobertura \
               /p:CoverletOutput=TestResults/coverage/ \
@@ -82,6 +82,7 @@ jobs:
           reports: '**/TestResults/**/coverage.cobertura.xml'
           targetdir: 'coverage-report'
           reporttypes: 'HtmlInline_AzurePipelines;TextSummary'
+          assemblyfilters: '+StudentAPI;-*.Tests'
 
       # 🧾 Put the summary into the job’s “Summary” tab
       - name: Add coverage summary to Job Summary

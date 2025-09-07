@@ -5,9 +5,13 @@
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
+          <!-- Only include the main app assembly in coverage -->
+          <!-- <Include>[StudentAPI]*</Include> -->
+          <!-- Exclude generated or low-value files from coverage -->
+          <ExcludeByFile>**/Migrations/*.cs;src/Program.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
 </RunSettings>
+
