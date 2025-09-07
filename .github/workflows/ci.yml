@@ -12,19 +12,30 @@ permissions:
 
 jobs:
   build-test:
-    name: Build and Test (.NET)
+    name: Build & Test (.NET)
     runs-on: ubuntu-latest
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8.x
+      - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+
+      # 🌟 NuGet cache (speeds up restore)
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props', '**/global.json', '**/nuget.config') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
 
       - name: Restore
         run: dotnet restore StudentAPI.sln
@@ -32,15 +43,31 @@ jobs:
       - name: Build (Release)
         run: dotnet build StudentAPI.sln --no-restore -c Release
 
+      # ✅ Runs tests, collects coverage, writes TRX
+      # If coverlet.runsettings exists it will be used; otherwise we emit Cobertura via /p:
       - name: Test with coverage
+        shell: bash
         run: |
-          dotnet test StudentAPI.sln \
-            --no-build -c Release \
-            --collect:"XPlat Code Coverage" \
-            --settings coverlet.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=test_results.trx"
+          if [ -f "coverlet.runsettings" ]; then
+            echo "Using coverlet.runsettings"
+            dotnet test StudentAPI.sln \
+              --no-build -c Release \
+              --collect:"XPlat Code Coverage" \
+              --settings coverlet.runsettings \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test_results.trx"
+          else
+            echo "coverlet.runsettings not found; using Cobertura output via properties"
+            dotnet test StudentAPI.sln \
+              --no-build -c Release \
+              /p:CollectCoverage=true \
+              /p:CoverletOutputFormat=cobertura \
+              /p:CoverletOutput=TestResults/coverage/ \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test_results.trx"
+          fi
 
+      # 📝 Pretty PR annotations & checks from TRX
       - name: Publish unit test results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -48,20 +75,38 @@ jobs:
           files: |
             **/TestResults/**/*.trx
 
-      - name: Generate coverage report (HTML)
+      # 📊 Generate HTML coverage + a concise text summary
+      - name: Generate coverage report (HTML + TextSummary)
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
           reports: '**/TestResults/**/coverage.cobertura.xml'
           targetdir: 'coverage-report'
           reporttypes: 'HtmlInline_AzurePipelines;TextSummary'
 
-      - name: Upload test results and coverage
+      # 🧾 Put the summary into the job’s “Summary” tab
+      - name: Add coverage summary to Job Summary
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            **/TestResults/**/*.trx
-            **/TestResults/**/*.xml
-            **/TestResults/**/*.json
-            coverage-report/**
+        shell: bash
+        run: |
+          if [ -f coverage-report/Summary.txt ]; then
+            {
+              echo "### Code Coverage"
+              echo
+              echo '```'
+              cat coverage-report/Summary.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No coverage summary found." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ⛳ Optional: fail if coverage below 70% (tweak MIN as needed)
+      - name: Enforce minimum coverage
+        if: always()
+        shell: bash
+        run: |
+          MIN=70
+          if [ -f coverage-report/Summary.txt ]; then
+            LINE=$(grep -m1 -E "Line coverage|Line Coverage" coverage-report/Summary.txt || true)
+            PCT=$(echo "$LINE" | grep -oE '[0-9]+([.][0-9]+)?' | head -n1)
+            echo "Detected l
