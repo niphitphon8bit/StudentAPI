@@ -1,4 +1,16 @@
+using DotNetEnv;
+DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
+
+// Build connection string from environment variables
+var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_SERVER")};" +
+                       $"Database={Environment.GetEnvironmentVariable("DB_NAME")};" +
+                       $"User Id={Environment.GetEnvironmentVariable("DB_USER")};" +
+                       $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};" +
+                       "TrustServerCertificate=True;";
+
+// Override the configuration value
+builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

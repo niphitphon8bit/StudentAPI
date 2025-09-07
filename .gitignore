@@ -1,13 +1,10 @@
-# Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Aa][Rr][Mm]/
+# Ignore build output in both root and src/
 bin/
 obj/
+src/bin/
+src/obj/
 
-# User-specific files
+# Ignore user-specific and IDE files
 *.user
 *.suo
 *.userosscache
@@ -24,13 +21,9 @@ ScaffoldingReadMe.txt
 
 # NuGet Packages
 *.nupkg
-# The packages folder can be ignored because of Package Restore
 **/packages/*
 !**/packages/build/
 !**/packages/repositories.config
-
-# NPM Packages
-node_modules/
 
 # Logs
 *.log
@@ -38,6 +31,11 @@ node_modules/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# .env files
+.env
+.env.*.local
+.env.local
 
 # Others
 *.swp
