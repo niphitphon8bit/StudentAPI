@@ -1,9 +1,10 @@
-# Ignore build output in both root and src/
-bin/
-obj/
-src/bin/
-src/obj/
-src/Migrations/
+# Build output (all projects)
+**/[Bb]in/
+**/[Oo]bj/
+**/[Oo]ut/
+
+# EF Core migrations (optional: comment out to commit migrations)
+# src/Migrations/
 
 # Ignore user-specific and IDE files
 *.user
@@ -11,11 +12,19 @@ src/Migrations/
 *.userosscache
 *.sln.docstates
 
+# Visual Studio
+.vs/
+
 # Visual Studio Code
 .vscode/
 
 # Rider
 .idea/
+*.DotSettings.user
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
@@ -26,8 +35,21 @@ ScaffoldingReadMe.txt
 !**/packages/build/
 !**/packages/repositories.config
 
+# Publish profiles
+**/Properties/PublishProfiles/
+*.pubxml
+*.pubxml.user
+
 # Logs
 *.log
+TestResults/
+
+# Coverage outputs
+*.coverage
+.coverage*
+coverage*.xml
+coverage*.json
+coverage*.info
 
 # OS generated files
 .DS_Store
@@ -38,6 +60,9 @@ Thumbs.db
 .env.*.local
 .env.local
 
+# Local appsettings overrides
+appsettings.*.local.json
+
 # Others
 *.swp
 *.bak
@@ -45,3 +70,18 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock
+
+.fake
+
+# Local DB files
+*.db
+*.mdf
+*.ldf
+
+# Misc user files
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+*.userprefs
