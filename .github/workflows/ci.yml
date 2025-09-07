@@ -83,6 +83,8 @@ jobs:
           targetdir: 'coverage-report'
           reporttypes: 'HtmlInline_AzurePipelines;TextSummary'
           assemblyfilters: '+StudentAPI;-*.Tests'
+          classfilters: '-StudentAPI.Migrations.*;-*.WeatherForecastController*'
+          filefilters: '-**/Migrations/*;-**/Program.cs;-**/Controllers/WeatherForecastController.cs'
 
       # 🧾 Put the summary into the job’s “Summary” tab
       - name: Add coverage summary to Job Summary

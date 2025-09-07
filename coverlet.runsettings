@@ -5,14 +5,14 @@
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <!-- Only include the main app assembly in coverage -->
-          <!-- <Include>[StudentAPI]*</Include> -->
-          <!-- Exclude generated or low-value files from coverage -->
-          <ExcludeByFile>**/Migrations/*.cs;src/Program.cs</ExcludeByFile>
-          <ExcludeByFile>src/Program.cs</ExcludeByFile>
+          <!-- Only include concrete product namespaces -->
+          <Include>[StudentAPI]StudentAPI.Controllers.*;[StudentAPI]StudentAPI.Data.*;[StudentAPI]StudentAPI.Models.*</Include>
+          <!-- Exclude generated or low-value files from coverage (belt-and-suspenders) -->
+          <ExcludeByFile>**/Migrations/*.cs;**/Program.cs;**/Controllers/WeatherForecastController.cs</ExcludeByFile>
+          <!-- Ignore compiler generated types (async state machines, lambdas, etc.) -->
+          <ExcludeByAttribute>CompilerGeneratedAttribute</ExcludeByAttribute>
         </Configuration>
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
 </RunSettings>
-
