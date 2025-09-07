@@ -27,12 +27,12 @@ public class ModelConfigurationTests
         entity.Should().NotBeNull();
         entity!.GetTableName().Should().Be("Students");
 
-        var nameProp = entity.FindProperty(nameof(Student.Name));
+        var nameProp = entity?.FindProperty(nameof(Student.Name));
         nameProp.Should().NotBeNull();
         nameProp!.IsNullable.Should().BeFalse();
         nameProp.GetMaxLength().Should().Be(100);
 
-        var ageProp = entity.FindProperty(nameof(Student.Age));
+        var ageProp = entity?.FindProperty(nameof(Student.Age));
         ageProp.Should().NotBeNull();
         ageProp!.IsNullable.Should().BeFalse();
     }
@@ -45,7 +45,7 @@ public class ModelConfigurationTests
         entity.Should().NotBeNull();
         entity!.GetTableName().Should().Be("Courses");
 
-        var titleProp = entity.FindProperty(nameof(Course.Title));
+        var titleProp = entity?.FindProperty(nameof(Course.Title));
         titleProp.Should().NotBeNull();
         titleProp!.IsNullable.Should().BeFalse();
         titleProp.GetMaxLength().Should().Be(200);
@@ -61,5 +61,19 @@ public class ModelConfigurationTests
         // Verify skip navigations exist on both sides
         studentType.GetSkipNavigations().Any(n => n.Name == nameof(Student.Courses)).Should().BeTrue();
         courseType.GetSkipNavigations().Any(n => n.Name == nameof(Course.Students)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ManyToMany_JoinTable_And_CompositeKey_Configured()
+    {
+        using var ctx = CreateContext();
+        var join = ctx.Model.GetEntityTypes()
+            .FirstOrDefault(e => e.GetTableName() == "CourseStudents");
+
+        join.Should().NotBeNull();
+        var pk = join!.FindPrimaryKey();
+        pk.Should().NotBeNull();
+        pk!.Properties.Select(p => p.Name)
+            .Should().BeEquivalentTo(new[] { "StudentId", "CourseId" });
     }
 }
