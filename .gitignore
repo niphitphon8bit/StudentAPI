@@ -4,7 +4,6 @@ obj/
 src/bin/
 src/obj/
 src/Migrations/
-src/models/
 
 # Ignore user-specific and IDE files
 *.user
