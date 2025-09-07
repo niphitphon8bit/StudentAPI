@@ -9,6 +9,7 @@
           <!-- <Include>[StudentAPI]*</Include> -->
           <!-- Exclude generated or low-value files from coverage -->
           <ExcludeByFile>**/Migrations/*.cs;src/Program.cs</ExcludeByFile>
+          <ExcludeByFile>src/Program.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>
