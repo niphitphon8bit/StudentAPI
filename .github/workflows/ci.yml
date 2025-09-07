@@ -107,6 +107,24 @@ jobs:
         run: |
           MIN=70
           if [ -f coverage-report/Summary.txt ]; then
-            LINE=$(grep -m1 -E "Line coverage|Line Coverage" coverage-report/Summary.txt || true)
-            PCT=$(echo "$LINE" | grep -oE '[0-9]+([.][0-9]+)?' | head -n1)
-            echo "Detected l
+            # Grab the first percentage on the "Line coverage" line (case-insensitive, flexible spacing)
+            LINE=$(grep -m1 -i 'Line[[:space:]]*coverage' coverage-report/Summary.txt || true)
+            PCT=$(awk '{
+              for (i=1; i<=NF; i++) {
+                if ($i ~ /%$/) { gsub("%","",$i); print $i; exit }
+              }
+            }' <<< "$LINE")
+
+            echo "Detected line coverage: ${PCT:-N/A}%"
+            if [ -n "$PCT" ]; then
+              PCT_INT=$(printf "%.0f" "$PCT")
+              if [ "$PCT_INT" -lt "$MIN" ]; then
+                echo "Coverage ${PCT_INT}% is below minimum ${MIN}%"
+                exit 1
+              fi
+            else
+              echo "Warning: could not parse coverage percentage from Summary.txt"
+            fi
+          else
+            echo "coverage-report/Summary.txt not found; skipping coverage gate."
+          fi
