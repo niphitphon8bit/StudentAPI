@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,4 +99,18 @@ public class JwtAuthTests : IClassFixture<WebApplicationFactory<Program>>
         var body = await resp.Content.ReadAsStringAsync();
         body.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task With_Valid_Token_Can_Create_Simple_Token()
+    {
+        var client = _factory.CreateClient();
+        var resp = await client.PostAsync("/auth/token", new StringContent("{\"username\":\"user1\",\"password\":\"pass1\"}", Encoding.UTF8, "application/json"));
+        Console.WriteLine(resp);
+
+        resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        var obj = await resp.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        var token = obj?["token"]; 
+        token.Should().NotBeNull();
+    }
+        
 }
