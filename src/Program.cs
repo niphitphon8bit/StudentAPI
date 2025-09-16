@@ -23,8 +23,17 @@ builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+if (builder.Environment.IsEnvironment("Test"))
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseInMemoryDatabase("TestDb"));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
+
 
 // Add JWT Authentication
 var jwtIssuer = builder.Configuration["JWT:Issuer"] ?? Environment.GetEnvironmentVariable("JWT__Issuer");
@@ -64,24 +73,34 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Test"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Log a one-time DB connectivity check at startup
+// Log a one-time DB connectivity check at startup (only for relational providers)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     try
     {
-        if (await db.Database.CanConnectAsync())
+        if (db.Database.IsRelational())
         {
-            app.Logger.LogInformation("Database connection OK.");
+            if (await db.Database.CanConnectAsync())
+            {
+                app.Logger.LogInformation("Database connection OK.");
+            }
+            else
+            {
+                app.Logger.LogWarning("Database connection FAILED.");
+            }
         }
         else
         {
-            app.Logger.LogWarning("Database connection FAILED.");
+            app.Logger.LogDebug("Skipping DB connectivity check for non-relational provider. (internal test)");
         }
     }
     catch (Exception ex)
@@ -93,3 +112,6 @@ using (var scope = app.Services.CreateScope())
 app.MapControllers();
 
 app.Run();
+
+// Make Program visible to WebApplicationFactory for integration tests
+public partial class Program { }

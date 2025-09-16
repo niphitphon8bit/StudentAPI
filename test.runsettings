@@ -1,0 +1,7 @@
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <ASPNETCORE_ENVIRONMENT>Test</ASPNETCORE_ENVIRONMENT>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>
