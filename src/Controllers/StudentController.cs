@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentAPI.Data;
@@ -15,6 +16,7 @@ public class StudentController : ControllerBase
     }
 
     // GET: api/Student
+    [Authorize]
     [HttpGet("list")]
     public async Task<IActionResult> GetAllStudents()
     {
@@ -30,6 +32,7 @@ public class StudentController : ControllerBase
     }
 
     // GET: api/Student/{id}
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetStudentById(int id)
     {
@@ -50,6 +53,7 @@ public class StudentController : ControllerBase
     }
 
     // POST: api/Student
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateStudent([FromBody] Student student)
     {
@@ -80,6 +84,7 @@ public class StudentController : ControllerBase
     }
 
     // PUT: api/Student/{id}
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateStudent(int id, [FromBody] Student updatedStudent)
     {

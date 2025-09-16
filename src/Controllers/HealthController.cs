@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentAPI.Data;
 
@@ -14,6 +15,8 @@ public class HealthController : ControllerBase
         _db = db;
     }
 
+    // GET: /health/db
+    [AllowAnonymous]
     [HttpGet("db")]
     public async Task<IActionResult> Db()
     {

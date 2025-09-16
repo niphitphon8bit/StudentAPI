@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace StudentAPI.Controllers;
@@ -11,6 +12,8 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
+    // GET: /WeatherForecast
+    [AllowAnonymous]
     [HttpGet]
     public IEnumerable<WeatherForecast> Get()
     {
